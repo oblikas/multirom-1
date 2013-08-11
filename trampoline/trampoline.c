@@ -31,7 +31,7 @@
 
 #define EXEC_MASK (S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH)
 #define REALDATA "/realdata"
-#define BOOT_DEV "/dev/block/mmcblk0p2"
+#define BOOT_DEV "/dev/block/mmcblk0p6"
 #define MULTIROM_BIN "multirom"
 #define BUSYBOX_BIN "busybox"
 #define KEEP_REALDATA "/dev/.keep_realdata"
