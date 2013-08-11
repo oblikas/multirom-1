@@ -43,13 +43,13 @@
 #define NTFS_BIN "ntfs-3g"
 #define ADBD_BIN "adbd"
 #define INTERNAL_ROM_NAME "Internal"
-#define BOOT_BLK "/dev/block/mmcblk0p2"
+#define BOOT_BLK "/dev/block/mmcblk0p6"
 #define MAX_ROM_NAME_LEN 26
 #define LAYOUT_VERSION "/data/.layout_version"
 #define SECOND_BOOT_KMESG "MultiromSaysNextBootShouldBeSecondMagic108"
 
 #define BATTERY_CAP "/sys/class/power_supply/battery/capacity"
-#define BRIGHTNESS_FILE "/sys/devices/platform/pwm-backlight/backlight/pwm-backlight/brightness"
+#define BRIGHTNESS_FILE "/sys/class/backlight/lm3530/brightness"
 
 #define T_FOLDER 4
 
