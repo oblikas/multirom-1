@@ -135,7 +135,7 @@ void adb_init_usb(void)
     write_file("/sys/class/android_usb/android0/idProduct", "4e42");
     write_file("/sys/class/android_usb/android0/functions", "adb");
     write_file("/sys/class/android_usb/android0/iManufacturer", "unknown");
-    write_file("/sys/class/android_usb/android0/iProduct", "Nexus 7");
+    write_file("/sys/class/android_usb/android0/iProduct", "Nexus 4");
     write_file("/sys/class/android_usb/android0/iSerial", serial);
 
     write_file("/sys/class/android_usb/android0/enable", "1");
