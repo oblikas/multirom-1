@@ -69,6 +69,7 @@ static const char *uevent_paths[] =
     "/sys/devices/platform/msm_sdcc.1/mmc_host/mmc0/mmc0:0001/block/mmcblk0/mmcblk0p6",
     "/sys/devices/platform/msm_sdcc.1/mmc_host/mmc0/mmc0:0001/block/mmcblk0/mmcblk0p23",
     "/sys/devices/platform/msm_sdcc.1/mmc_host/mmc0/mmc0:0001/block/mmcblk0/mmcblk0p21",
+
     "/sys/bus/mmc",
     "/sys/bus/mmc/drivers/mmcblk",
     "/sys/bus/sdio/drivers/bcmsdh_sdmmc",
@@ -90,6 +91,10 @@ static const char *uevent_paths[] =
     "/sys/class/misc/android_adb",
     "/sys/class/android_usb/android0/f_adb",
     "/sys/bus/usb",
+
+//Mount persist and firmware
+    "/sys/devices/platform/msm_sdcc.1/mmc_host/mmc0:0001/block/mmcblk0/mmcblk0p20", //persist
+    "/sys/devices/platform/msm_sdcc.1/mmc_host/mmc0:0001/block/mmcblk0/mmcblk0p1", //firmware
 
 //USB Driver here
     "/sys/devices/platform/msm_hsusb_host",

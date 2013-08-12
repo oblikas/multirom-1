@@ -978,14 +978,6 @@ int multirom_prep_android_mounts(struct multirom_rom *rom)
                 return -1;
         }
     }
-
-    // mako-specific mounts, this needs better generic handling.
-    // MultiROM should probably parse the fstab
-    mkdir_with_perms("/persist", 0771, "system", "system");
-    mkdir_with_perms("/firmware", 0771, "system", "system");
-    mount("/dev/block/mmcblk0p20", "/persist", "ext4", (MS_NOSUID | MS_NODEV), "barrier=1,data=ordered,nodelalloc");
-    mount("/dev/block/mmcblk0p1", "/firmware", "vfat", (MS_RDONLY), "uid=1000,gid=1000,dmask=227,fmask=337");
-
     return 0;
 }
 
