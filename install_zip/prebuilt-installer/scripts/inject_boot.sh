@@ -71,7 +71,7 @@ case $rd_cmpr in
 esac
 
 cd /tmp
-/tmp/mkbootimg --kernel boot.img-zImage --ramdisk boot.img-ramdisk.gz --cmdline "$(cat boot.img-cmdline)" --base $(cat boot.img-base) --output /tmp/newboot.img
+/tmp/mkbootimg --kernel boot.img-zImage --ramdisk boot.img-ramdisk.gz --cmdline "$(cat boot.img-cmdline)" --base $(cat boot.img-base) --output /tmp/newboot.img --ramdiskaddr 0x82200000
 
 if [ ! -e "/tmp/newboot.img" ] ; then
     echo "Failed to inject boot.img!"

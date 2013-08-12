@@ -91,6 +91,8 @@ static const char *uevent_paths[] =
     "/sys/class/android_usb/android0/f_adb",
     "/sys/bus/usb",
 
+//USB Driver here
+    "/sys/devices/platform/msm_hsusb_host",
 
     NULL
 };

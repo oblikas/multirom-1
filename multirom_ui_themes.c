@@ -59,3 +59,11 @@ multirom_theme *multirom_ui_select_theme(multirom_themes_info *i, int w, int h)
     }
     return NULL;
 }
+// in file multirom_ui_themes.c, bellow..
+// #ifdef MULTIROM_THEME_1280x800
+//    list_add(init_theme_info_1280x800(), &i->themes);
+// #endif
+// put this:
+#ifdef MULTIROM_THEME_768x1280
+    list_add(init_theme_info_768x1280(), &i->themes);
+#endif

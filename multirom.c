@@ -108,8 +108,8 @@ int multirom(void)
     multirom_load_status(&s);
     multirom_dump_status(&s);
 
-    if(s.enable_adb)
-        adb_init();
+   // if(s.enable_adb)
+     //   adb_init();
 
     struct multirom_rom *to_boot = NULL;
     int exit = (EXIT_REBOOT | EXIT_UMOUNT);

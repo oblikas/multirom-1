@@ -130,7 +130,7 @@ struct part_info
     char *name;
 };
 
-#define PARTS_SIZE 24
+#define PARTS_SIZE 48
 
 int find_data_dev(char *data_dev)
 {
@@ -254,7 +254,7 @@ int main(int argc, char *argv[])
         ok = 0;
     }
 
-    // mount and run multirom from sdcard
+        // mount and run multirom from sdcard
     if(ok)
     {
         char data_dev[128];

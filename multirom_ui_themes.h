@@ -85,4 +85,14 @@ multirom_theme *init_theme_info_800x1280(void);
 multirom_theme *init_theme_info_1280x800(void);
 #endif
 
+// put this bellow ..
+// #ifdef MULTIROM_THEME_1280x800
+// multirom_theme *init_theme_info_1280x800(void);
+// #endif
+// in file multirom_ui_themes.h
+ 
+#ifdef MULTIROM_THEME_768x1280
+multirom_theme *init_theme_info_768x1280(void);
+#endif
+
 #endif

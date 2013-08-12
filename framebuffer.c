@@ -123,7 +123,8 @@ int fb_open(int rotation)
 
     fb_frozen = 0;
     active_fb = 0;
-
+// Put this line ABOVE line "uint32_t *b_store = malloc(vi.xres*vi.yres*PIXEL_SIZE);" in method fb_open()
+    vi.xres_virtual = fi.line_length / PIXEL_SIZE;
     uint32_t *b_store = malloc(vi.xres*vi.yres*PIXEL_SIZE);
     android_memset32(b_store, BLACK, vi.xres*vi.yres*PIXEL_SIZE);
 
@@ -172,9 +173,8 @@ void fb_close(void)
 void fb_set_active_framebuffer(unsigned n)
 {
     if (n > 1) return;
-    fb->vi.yres_virtual = fb->vi.yres * PIXEL_SIZE;
+    fb->vi.yres_virtual = fb->vi.yres * 2;
     fb->vi.yoffset = n * fb->vi.yres;
-    fb->vi.bits_per_pixel = PIXEL_SIZE * 8;
     if (ioctl(fb->fd, FBIOPUT_VSCREENINFO, &fb->vi) < 0) {
         ERROR("active fb swap failed");
     }
