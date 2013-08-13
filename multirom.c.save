@@ -861,219 +861,232 @@ void multirom_free_rom(void *rom)
 
 #define EXEC_MASK (S_IRUSR | S_IWUSR | S_IXUSR | S_IRGRP | S_IXGRP)
 
-int multirom_prep_android_mounts(struct multirom_rom *rom)
-{
+
+
+
+
+
+int multirom_prep_android_mounts(struct multirom_rom *rom) {
     char in[128];
     char out[128];
     char folder[256];
     sprintf(folder, "%s/boot", rom->base_path);
  
-    DIR *d = opendir(folder);
-    if(!d)
-    {
-        ERROR("Failed to open rom folder %s", folder);
+
+
+
+
+
+
+
+
+
+
+
+
+
+int multirom_prep_android_mounts(struct multirom_rom *rom) {
+    DIR *d = opendir(folder); char in[128];
+    if(!d) char out[128];
+    { char folder[256];
+        ERROR("Failed to open rom folder %s", folder); 
+sprintf(folder, "%s/boot", rom->base_path);
         return -1;
-    }
+    }    DIR *d = opendir(folder);
+     if(!d)
+    struct dirent *dp = NULL; {
+         ERROR("Failed to open rom folder %s", folder);
+    while((dp = readdir(d))) return -1;
+    { }
+        if(dp->d_name[0] == '.' && (dp->d_name[1] == '.' || 
+dp->d_name[1] == 0))
+            continue; struct dirent *dp = NULL;
  
-    struct dirent *dp = NULL;
- 
-    while((dp = readdir(d)))
-    {
-        if(dp->d_name[0] == '.' && (dp->d_name[1] == '.' || dp->d_name[1] == 0))
-            continue;
- 
-        sprintf(in, "%s/%s", folder, dp->d_name);
-        sprintf(out, "/%s", dp->d_name);
- 
+    char line[1024];
+        sprintf(in, "%s/%s", folder, dp->d_name); FILE *f_in = NULL;
+        sprintf(out, "/%s", dp->d_name); FILE *f_out = NULL;
+     int add_dummy = 0;
         copy_file(in, out);
- 
-        // set permissions for .rc files
-        if(strstr(dp->d_name, ".rc"))
-            chmod(out, EXEC_MASK);
+     while((dp = readdir(d)))
+        // set permissions for .rc files {
+        if(strstr(dp->d_name, ".rc")) sprintf(in, "%s/%s", folder, 
+dp->d_name);
+            chmod(out, EXEC_MASK); sprintf(out, "/%s", dp->d_name);
     }
-    closedir(d);
- 
-    if(multirom_process_android_fstab() != 0)
-        return -1;
- 
-    mkdir_with_perms("/system", 0755, NULL, NULL);
-    mkdir_with_perms("/data", 0771, "system", "system");
+        // just copy the file if not rc
+    closedir(d); if(!strstr(dp->d_name, ".rc"))
+         {
+    if(multirom_process_android_fstab() != 0) copy_file(in, out);
+        return -1; continue;
+         }
+
+        f_in = fopen(in, "r");
+    mkdir_with_perms("/system", 0755, NULL, NULL); if(!f_in)
+    mkdir_with_perms("/data", 0771, "system", "system"); continue;
     mkdir_with_perms("/cache", 0770, "system", "cache");
+         f_out = fopen(out, "w");
+    static const char *folders[2][3] = if(!f_out)
+    { {
+        { "system", "data", "cache" }, fclose(f_in);
+        { "system.img", "data.img", "cache.img" }, continue;
+    }; }
  
-    static const char *folders[2][3] =
-    {
-        { "system", "data", "cache" },
-        { "system.img", "data.img", "cache.img" },
-    };
- 
-    unsigned long flags[2][3] = {
-        { MS_BIND | MS_RDONLY, MS_BIND, MS_BIND },
-        { MS_RDONLY | MS_NOATIME, MS_NOATIME, MS_NOATIME },
-    };
- 
-    uint32_t i;
-    char from[256];
-    char to[256];
-    int img = (int)(rom->type == ROM_ANDROID_USB_IMG);
-    for(i = 0; i < ARRAY_SIZE(folders[0]); ++i)
-    {
-        sprintf(from, "%s/%s", rom->base_path, folders[img][i]);
+        while((fgets(line, sizeof(line), f_in)))
+    unsigned long flags[2][3] = { {
+        { MS_BIND | MS_RDONLY, MS_BIND, MS_BIND }, if (strstr(line, 
+"on "))
+        { MS_RDONLY | MS_NOATIME, MS_NOATIME, MS_NOATIME }, 
+add_dummy = 1;
+    }; // Remove mounts from RCs
+             else if (strstr(line, "mount_all") ||
+    uint32_t i; (strstr(line, "mount ") && (strstr(line, "/data") || 
+strstr(line, "/system"))))
+    char from[256]; {
+    char to[256]; if(add_dummy == 1)
+    int img = (int)(rom->type == ROM_ANDROID_USB_IMG); {
+    for(i = 0; i < ARRAY_SIZE(folders[0]); ++i) add_dummy = 0;
+    { fputs(" export DUMMY_LINE_INGORE_IT 1\n", f_out);
+        sprintf(from, "%s/%s", rom->base_path, folders[img][i]); }
         sprintf(to, "/%s", folders[0][i]);
+                 // This is needed to start sdcard and gps daemon
+        if(img == 0) // (class late_start). Calling "on unencrypted"
+        { // is in mount_all cmd, which is just not cool.
+            if(mount(from, to, "ext4", flags[img][i], 
+"discard,nomblk_io_submit") < 0) if(strstr(line, "mount_all"))
+            { {
+                ERROR("Failed to mount %s to %s (%d: %s)", from, to, 
+errno, strerror(errno)); fputs(" setprop ro.crypto.state 
+unencrypted\n", f_out);
+                return -1; fputs(" trigger nonencrypted\n", f_out);
+            }                }
+
+                fputc((int)'#', f_out);
+        }            }
+            fputs(line, f_out);
+        else }
+        {
+            if(multirom_mount_loop(from, to, "ext4", flags[img][i]) 
+< 0) fclose(f_out);
+                return -1; fclose(f_in);
+        }
+        chmod(out, EXEC_MASK);
+    }    }
+    closedir(d);
+    return 0;
+}    mkdir_with_perms("/system", 0755, NULL, NULL);
+     mkdir_with_perms("/data", 0771, "system", "system"); int 
+multirom_process_android_fstab(void) mkdir_with_perms("/cache", 
+0770, "system", "cache"); {
+    DIR *d = opendir("/"); static const char *folders[2][3] =
+    if(!d) {
+    { { "system", "data", "cache" },
+        ERROR("Failed to open root folder!\n"); { "system.img", 
+"data.img", "cache.img" },
+        return -1; };
+    }
+    unsigned long flags[2][3] = {
+         { MS_BIND | MS_RDONLY, MS_BIND, MS_BIND },
+    char *fstab_name = NULL; { MS_RDONLY | MS_NOATIME, MS_NOATIME, 
+MS_NOATIME },
+    struct dirent *dp = NULL; };
+    while((dp = readdir(d)))
+    { uint32_t i;
+        if(strstr(dp->d_name, "fstab.")) char from[256];
+        { char to[256];
+            fstab_name = strdup(dp->d_name); int img = 
+(int)(rom->type == ROM_ANDROID_USB_IMG);
+            break; for(i = 0; i < ARRAY_SIZE(folders[0]); ++i)
+        }    {
+    }        sprintf(from, "%s/%s", rom->base_path, 
+    }        folders[img][i]);
+    closedir(d); sprintf(to, "/%s", folders[0][i]);
  
         if(img == 0)
-        {
-            if(mount(from, to, "ext4", flags[img][i], "discard,nomblk_io_submit") < 0)
-            {
-                ERROR("Failed to mount %s to %s (%d: %s)", from, to, errno, strerror(errno));
-                return -1;
-            }
+    if(!fstab_name) {
+    { if(mount(from, to, "ext4", flags[img][i], 
+"discard,nomblk_io_submit") < 0)
+        ERROR("Failed to find fstab file in root!\n"); {
+        return -1; ERROR("Failed to mount %s to %s (%d: %s)", from, 
+to, errno, strerror(errno));
+    }                return -1;
+             }
         }
         else
-        {
-            if(multirom_mount_loop(from, to, "ext4", flags[img][i]) < 0)
-                return -1;
-        }
-    }
-    return 0;
-}
- 
-int multirom_process_android_fstab(void)
-{
-    DIR *d = opendir("/");
-    if(!d)
-    {
-        ERROR("Failed to open root folder!\n");
-        return -1;
-    }
- 
-    char *fstab_name = NULL;
-    struct dirent *dp = NULL;
-    while((dp = readdir(d)))
-    {
-        if(strstr(dp->d_name, "fstab."))
-        {
-            fstab_name = strdup(dp->d_name);
-            break;
-        }
-    }
-    closedir(d);
- 
-    if(!fstab_name)
-    {
-        ERROR("Failed to find fstab file in root!\n");
-        return -1;
-    }
- 
-    ERROR("Modifying fstab: %s\n", fstab_name);
- 
-    FILE *fstab = NULL;
-    long len = 0;
-    char *line = NULL;
+    ERROR("Modifying fstab: %s\n", fstab_name); {
+             if(multirom_mount_loop(from, to, "ext4", flags[img][i]) 
+< 0)
+    FILE *fstab = NULL; return -1;
+    long len = 0; }
+    char *line = NULL; }
     char *out = NULL;
-    int res = -1;
-    int counter = 0;
- 
-    fstab = fopen(fstab_name, "r");
-    if(!fstab)
-    {
+    int res = -1; // mako-specific mounts, this needs better generic 
+handling.
+    int counter = 0; // MultiROM should probably parse the fstab
+     mkdir_with_perms("/persist", 0771, "system", "system");
+    fstab = fopen(fstab_name, "r"); mkdir_with_perms("/firmware", 
+0771, "system", "system");
+    if(!fstab) mount("/dev/block/mmcblk0p20", "/persist", "ext4", 
+(MS_NOSUID | MS_NODEV), "barrier=1,data=ordered,nodelalloc");
+    { mount("/dev/block/mmcblk0p1", "/firmware", "vfat", 
+(MS_RDONLY), "uid=1000,gid=1000,dmask=227,fmask=337");
         ERROR("Failed to open %s\n", fstab_name);
-        goto exit;
-    }
- 
-    fseek(fstab, 0, SEEK_END);
-    len = ftell(fstab);
-    fseek(fstab, 0, SEEK_SET);
- 
-#define FSTAB_LINE_LEN 2048
-    line = malloc(FSTAB_LINE_LEN);
-    out = malloc(len + 32);
-    out[0] = 0;
- 
-    while((fgets(line, FSTAB_LINE_LEN, fstab)))
-    {
-        if (line[0] != '#' &&
-            (strstr(line, "/system") || strstr(line, "/cache") || strstr(line, "/data")))
-        {
-            strcat(out, "#");
-            ++counter;
-        }
-        strcat(out, line);
-    }
-    fclose(fstab);
- 
-    if(counter != 3)
-    {
-        ERROR("Commented %u lines instead of 3 in fstab, stopping boot!\n", counter);
-        goto exit;
-    }
- 
-    fstab = fopen(fstab_name, "w");
-    if(!fstab)
-    {
-        ERROR("Failed to open %s for writing!", fstab_name);
-        goto exit;
-    }
- 
-    fputs(out, fstab);
-    fclose(fstab);
- 
-    res = 0;
-exit:
-    free(line);
-    free(out);
-    free(fstab_name);
-    return res;
-}
+        goto exit; return 0;
+    }}
 
-int multirom_create_media_link(void)
-{
-    int media_new = 0;
-    int api_level = multirom_get_api_level("/system/build.prop");
-    if(api_level <= 0)
-        return -1;
-
+int multirom_create_media_link(void) {
+     int media_new = 0;
+    fseek(fstab, 0, SEEK_END); int api_level = 
+multirom_get_api_level("/system/build.prop");
+    len = ftell(fstab); if(api_level <= 0)
+    fseek(fstab, 0, SEEK_SET); return -1;
+ 
     struct stat info;
-    if(stat(REALDATA"/media/0", &info) >= 0)
-        media_new = 1;
-
-    static const char *paths[] = {
-        REALDATA"/media",      // 0
-        REALDATA"/media/0",    // 1
-
-        "/data/media",         // 2
-        "/data/media/0",       // 3
-    };
-
-    int from, to;
-
+#define FSTAB_LINE_LEN 2048 if(stat(REALDATA"/media/0", &info) >= 0)
+    line = malloc(FSTAB_LINE_LEN); media_new = 1;
+    out = malloc(len + 32);
+    out[0] = 0; static const char *paths[] = {
+         REALDATA"/media", // 0
+    while((fgets(line, FSTAB_LINE_LEN, fstab))) REALDATA"/media/0", 
+// 1
+    {
+        if (line[0] != '#' && "/data/media", // 2
+            (strstr(line, "/system") || strstr(line, "/cache") || 
+strstr(line, "/data"))) "/data/media/0", // 3
+        { };
+            strcat(out, "#");
+            ++counter; int from, to;
+        }
     if(api_level <= 16)
-    {
-        to = 2;
-        if(!media_new) from = 0;
-        else           from = 1;
-    }
-    else if(api_level >= 17)
-    {
-        from = 0;
-        if(!media_new) to = 3;
-        else           to = 2;
-    }
-
-    ERROR("Making media dir: api %d, media_new %d, %s to %s", api_level, media_new, paths[from], paths[to]);
-    if(mkdir_recursive(paths[to], 0775) == -1)
-    {
-        ERROR("Failed to make media dir");
-        return -1;
-    }
-
-    if(mount(paths[from], paths[to], "ext4", MS_BIND, "") < 0)
-    {
-        ERROR("Failed to bind media folder %d (%s)", errno, strerror(errno));
-        return -1;
-    }
-
-    if(api_level >= 17)
-    {
+        strcat(out, line); {
+    }        to = 2;
+    fclose(fstab); if(!media_new) from = 0;
+         else from = 1;
+    if(counter != 3) }
+    { else if(api_level >= 17)
+        ERROR("Commented %u lines instead of 3 in fstab, stopping 
+boot!\n", counter); {
+        goto exit; from = 0;
+    }        if(!media_new) to = 3;
+         else to = 2;
+    fstab = fopen(fstab_name, "w"); }
+    if(!fstab)
+    { ERROR("Making media dir: api %d, media_new %d, %s to %s", 
+api_level, media_new, paths[from], paths[to]);
+        ERROR("Failed to open %s for writing!", fstab_name); 
+if(mkdir_recursive(paths[to], 0775) == -1)
+        goto exit; {
+    }        ERROR("Failed to make media dir");
+         return -1;
+    fputs(out, fstab); }
+    fclose(fstab);
+     if(mount(paths[from], paths[to], "ext4", MS_BIND, "") < 0)
+    res = 0; { exit: ERROR("Failed to bind media folder %d (%s)", 
+errno, strerror(errno));
+    free(line); return -1;
+    free(out); }
+    free(fstab_name);
+    return res; if(api_level >= 17)
+}    {
         FILE *f = fopen(LAYOUT_VERSION, "w");
         if(!f)
         {
